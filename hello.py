@@ -2,18 +2,21 @@ import numpy as np
 import math
 
 
-def findNeighbors(node, movements):
+def findNeighbors(node, movements, graph):
 
     neighbors = list()
     print("inhere")
     location = node[0]
-    i=1
-    for x in node[1:]:
-        #calcANeigbor(node,)
-        canVisit = calcDistances(movements[x],location)
-        print("x")
+    actions = (node[1])
+    actions = actions.split()
+    for x in actions:
 
-    
+        canVisit = calcDistances(movements[x],location)
+        dict_value = graph[canVisit]
+        new_tuple = (canVisit,dict_value)
+        neighbors.append(new_tuple) 
+
+    return neighbors
     #return neighbors
 def calcDistances (direction,startingPoint):
     x_coordinate = int(startingPoint.split()[0])
@@ -99,7 +102,7 @@ def calcDistances (direction,startingPoint):
     x_coordinate = str(x_coordinate)
     y_coordinate = str(y_coordinate)
     z_coordinate = str(z_coordinate)
-    finalCoordinate = {x_coordinate + " " + y_coordinate + " " + z_coordinate}
+    finalCoordinate = x_coordinate + " " + y_coordinate + " " + z_coordinate
 
     print("end")
 
@@ -125,14 +128,12 @@ def returnPathOptions(node):
 def bfs(graph, startingNode, endNode, movements):
     frontier = list() #the queue
     explored = list() # all things visited
-    totalCost = 0 
     totalSteps = 0
     cleanListWithCost = list()
 
     # Add first stuff to lists
     frontier.append(next(iter((graph.items())) ))
 
-    cleanListWithCost.append(startingNode + " 0")
 
     while len(frontier)>0:
         node = frontier.pop(0)
@@ -140,13 +141,18 @@ def bfs(graph, startingNode, endNode, movements):
         cleanListWithCost.append(node[0] + " 1")
         
         # find neighbors
-        neighbors = findNeighbors(node, movements)
-        '''
-        for 
-        if item not in explored or frontier:
-            if 
-            frontier.append(item)
-            '''
+        neighbors = findNeighbors(node, movements, graph)
+        # this is return just a neighbor....
+        # Add neighbors to frontier
+        for x in neighbors: 
+            if x[0] not in frontier or explored:
+                if x[0] == endNode: #clean up output files
+                    return explored
+                tempList =list(x)
+                frontier.append(tempList)
+    
+    return "FAILED"
+
 
 def initiateGraph(filename):
     inputDict = dict()
@@ -222,8 +228,8 @@ if __name__ == "__main__":
     }
 
     bfsData = initiateGraph("bfs_input.txt")
-    bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements)
-
+    explored = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements)
+    print(explored)
 
     blue = initiateGraph("usc_input.txt")
 
