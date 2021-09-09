@@ -16,9 +16,94 @@ def findNeighbors(node, movements):
     
     #return neighbors
 def calcDistances (direction,startingPoint):
-    coordinate = int(startingPoint)
+    x_coordinate = int(startingPoint.split()[0])
+    y_coordinate = int(startingPoint.split()[1])
+    z_coordinate = int(startingPoint.split()[2])
+
+    #1
+    if direction == "X+":
+        x_coordinate = x_coordinate + 1
+    #2
+    elif direction == "X-":
+        x_coordinate = x_coordinate - 1
+    #3
+
+    elif direction == "Y+":
+        y_coordinate = y_coordinate + 1
+    
+    #4
+    elif direction == "Y-":
+        y_coordinate = y_coordinate - 1
+    
+    #5
+    elif direction == "Z+":
+        z_coordinate = z_coordinate + 1
+    
+    #6
+    elif direction == "Z-":
+        z_coordinate = z_coordinate - 1
+
+    #7
+    elif direction == "X+Y+":
+        x_coordinate = x_coordinate + 1
+        y_coordinate = y_coordinate + 1
+
+    #8
+    elif direction == "X+Y-":
+        x_coordinate = x_coordinate + 1
+        y_coordinate = y_coordinate - 1
+    #9
+    elif direction == "X-Y+":
+        x_coordinate = x_coordinate - 1
+        y_coordinate = y_coordinate + 1
+
+    #10
+    elif direction == "X-Y-":
+        x_coordinate = x_coordinate - 1
+        y_coordinate = y_coordinate - 1
+    
+    #11
+    elif direction == "X+Z+":
+        x_coordinate = x_coordinate + 1
+        z_coordinate = z_coordinate + 1
+
+    #12
+    elif direction == "X+Z-":
+        x_coordinate = x_coordinate + 1
+        z_coordinate = z_coordinate - 1
+    #13
+    elif direction == "X-Z+":
+        x_coordinate = x_coordinate - 1
+        z_coordinate = z_coordinate + 1
+    #14
+    elif direction == "X-Z-":
+        x_coordinate = x_coordinate - 1
+        z_coordinate = z_coordinate - 1
+    #15
+    elif direction == "Y+Z+":
+        y_coordinate = y_coordinate + 1
+        z_coordinate = z_coordinate + 1
+    #16
+    elif direction == "Y+Z-":
+        y_coordinate = y_coordinate + 1
+        z_coordinate = z_coordinate - 1
+    #17
+    elif direction == "Y-Z+":
+        y_coordinate = y_coordinate - 1
+        z_coordinate = z_coordinate + 1
+    #18
+    elif direction == "Y-Z-":
+        y_coordinate = y_coordinate - 1
+        z_coordinate = z_coordinate - 1
+        
+    x_coordinate = str(x_coordinate)
+    y_coordinate = str(y_coordinate)
+    z_coordinate = str(z_coordinate)
+    finalCoordinate = {x_coordinate + " " + y_coordinate + " " + z_coordinate}
+
     print("end")
 
+    return finalCoordinate
 
 
 
