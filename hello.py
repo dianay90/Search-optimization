@@ -5,15 +5,13 @@ import math
 def findNeighbors(node, movements, graph):
 
     neighbors = list()
-    print("inhere")
-    location = node[0]
-    actions = (node[1])
-    actions = actions.split()
+    location = node
+    actions = graph[location].split()
+
     for x in actions:
 
         canVisit = calcDistances(movements[x],location)
-        dict_value = graph[canVisit]
-        new_tuple = (canVisit,dict_value)
+        new_tuple = (canVisit)
         neighbors.append(new_tuple) 
 
     return neighbors
@@ -104,7 +102,6 @@ def calcDistances (direction,startingPoint):
     z_coordinate = str(z_coordinate)
     finalCoordinate = x_coordinate + " " + y_coordinate + " " + z_coordinate
 
-    print("end")
 
     return finalCoordinate
 
@@ -127,30 +124,33 @@ def returnPathOptions(node):
 
 def bfs(graph, startingNode, endNode, movements):
     frontier = list() #the queue
-    explored = list() # all things visited
-    totalSteps = 0
     cleanListWithCost = list()
 
+    if startingNode == endNode:
+        cleanListWithCost.append(startingNode + " 0")
+        return cleanListWithCost
+        
     # Add first stuff to lists
-    frontier.append(next(iter((graph.items())) ))
+    frontier.append(startingNode)
+    explored = list() # all things visited
 
-
+    
     while len(frontier)>0:
         node = frontier.pop(0)
-        explored.append(node[0])   
-        cleanListWithCost.append(node[0] + " 1")
+        explored.append(node)   
+        cleanListWithCost.append(node + " 1")
         
         # find neighbors
         neighbors = findNeighbors(node, movements, graph)
         # this is return just a neighbor....
         # Add neighbors to frontier
         for x in neighbors: 
-            if x[0] not in frontier or explored:
-                if x[0] == endNode: #clean up output files
-                    return explored
-                tempList =list(x)
-                frontier.append(tempList)
-    
+            if x not in frontier and x not in explored:
+                if x == endNode: #clean up output files
+                    cleanListWithCost.append(x + " 1")
+                    return cleanListWithCost
+                frontier.append(x)
+
     return "FAILED"
 
 
@@ -173,8 +173,6 @@ def initiateGraph(filename):
 
         graph.append(item.strip())
 
-
-    print("end")
 
     graphDictionary = dict()
     for item in graph:
@@ -233,4 +231,3 @@ if __name__ == "__main__":
 
     blue = initiateGraph("usc_input.txt")
 
-    print("end")
