@@ -1,9 +1,25 @@
 import numpy as np
 import math
 
-def checkBounds (node, startingNode, endingNode):
-    print("f")
+def checkBounds (node, graphDimensions):
+    value = node
+    value_list = value.split()
+    graphDimensions_list = graphDimensions.split()
 
+    x_coordinate = int(value_list[0])
+    y_coordinate = int(value_list[1])
+    z_coordinate = int(value_list[2])
+    
+    x_max= int(graphDimensions_list[0])
+    y_max= int(graphDimensions_list[1])
+    z_max= int(graphDimensions_list[2])
+
+    if x_coordinate >= x_max or x_coordinate < 0:
+        return "fail"
+    elif y_coordinate >= y_max or y_coordinate <0:
+        return "fail"
+    elif z_coordinate >= z_max or z_coordinate < 0: 
+        return "fail"
 def findNeighbors(node, movements, graph):
 
     neighbors = list()
@@ -157,7 +173,7 @@ def neighborCheck(neighbors, explored, previousNodeDict):
                 previousNodeDict.update({i:j})
     
 
-def bfs(graph, startingNode, endNode, movements):
+def bfs(graph, startingNode, endNode, movements, graphDimensions):
     frontier = list() #the queue
     previousNodeDict = dict()
 
@@ -168,13 +184,13 @@ def bfs(graph, startingNode, endNode, movements):
     
     while len(frontier)>0:
         node = frontier.pop(0)
-        #checkBounds(node, startingNode, endNode)
+        value = checkBounds(node, graphDimensions)
+        if value == "fail":
+            continue
 
         explored.append(node)  
         previousNodeDict[node] = list()
- 
-        cost = 1
-        
+         
         # find neighbors
         neighbors = findNeighbors(node, movements, graph)
 
