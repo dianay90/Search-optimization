@@ -117,7 +117,22 @@ def returnPathOptions(node):
     while i < len(node):
         newDistanceList.append(i)
 
+def calculateShortestPath(startingNode,endNode,previousNodeDict):
+    shortestPath = list()
+    shortestPath.append(endNode + " 1")
+    backwardsNode = endNode
+    while backwardsNode != startingNode:
+        for i in previousNodeDict:
+            if backwardsNode in previousNodeDict[i]:
+                if i != startingNode:
+                    shortestPath.append(i + " 1")
+                else:
+                    shortestPath.append(i + " 0")
+                backwardsNode = i
 
+    shortestPath.reverse()
+
+    return shortestPath
 
 def neighborCheck(neighbors, explored, previousNodeDict):
     for j in neighbors:
@@ -128,15 +143,8 @@ def neighborCheck(neighbors, explored, previousNodeDict):
 
 def bfs(graph, startingNode, endNode, movements):
     frontier = list() #the queue
-    cleanListWithCost = list()
-    cost =0
     previousNodeDict = dict()
-    previousNode = startingNode
-   
 
-    if startingNode == endNode:
-        cleanListWithCost.append(startingNode + " 0")
-        return cleanListWithCost
         
     # Add first stuff to lists
     frontier.append(startingNode)
@@ -147,7 +155,6 @@ def bfs(graph, startingNode, endNode, movements):
         explored.append(node)  
         previousNodeDict[node] = list()
  
-        cleanListWithCost.append(node + " " + str(cost))
         cost = 1
         
         # find neighbors
@@ -161,8 +168,8 @@ def bfs(graph, startingNode, endNode, movements):
                 previousNodeDict[node].append(x)
                  
                 if x == endNode: #clean up output files
-                    cleanListWithCost.append(x + " 1")
-                    return cleanListWithCost
+                    shortestRoute =calculateShortestPath(startingNode, endNode, previousNodeDict)
+                    return shortestRoute
                 frontier.append(x)
     print("woof")
     return "FAILED"
