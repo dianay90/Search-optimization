@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+def checkBounds (node, startingNode, endingNode):
+    print("f")
 
 def findNeighbors(node, movements, graph):
 
@@ -131,8 +133,22 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
                 backwardsNode = i
 
     shortestPath.reverse()
+    cost = len(shortestPath)-1 
+    length = len(shortestPath)
 
-    return shortestPath
+    return shortestPath, cost, length
+
+def constructFile(bfsData):
+
+    with open('bfs_output.txt', mode='wt', encoding='utf-8') as output_file:
+        if bfsData != 'FAILED':
+            output_file.write(str(bfsData[1]) + "\n")
+            output_file.write(str(bfsData[2]) + "\n")
+            output_file.write('\n'.join(bfsData[0]))
+        else: 
+            output_file.write("FAIL")
+
+
 
 def neighborCheck(neighbors, explored, previousNodeDict):
     for j in neighbors:
@@ -152,6 +168,8 @@ def bfs(graph, startingNode, endNode, movements):
     
     while len(frontier)>0:
         node = frontier.pop(0)
+        #checkBounds(node, startingNode, endNode)
+
         explored.append(node)  
         previousNodeDict[node] = list()
  
@@ -247,8 +265,8 @@ if __name__ == "__main__":
     }
 
     bfsData = initiateGraph("bfs_input.txt")
-    explored = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements)
-    print(explored)
+    bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
+    outputFileContent = constructFile (bfsPath)
 
     blue = initiateGraph("usc_input.txt")
 
