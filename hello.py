@@ -119,12 +119,20 @@ def returnPathOptions(node):
 
 
 
-
+def neighborCheck(neighbors, explored, previousNodeDict):
+    for j in neighbors:
+        for i in explored:
+            if j == i: 
+                previousNodeDict.update({i:j})
     
 
 def bfs(graph, startingNode, endNode, movements):
     frontier = list() #the queue
     cleanListWithCost = list()
+    cost =0
+    previousNodeDict = dict()
+    previousNode = startingNode
+   
 
     if startingNode == endNode:
         cleanListWithCost.append(startingNode + " 0")
@@ -133,24 +141,30 @@ def bfs(graph, startingNode, endNode, movements):
     # Add first stuff to lists
     frontier.append(startingNode)
     explored = list() # all things visited
-
     
     while len(frontier)>0:
         node = frontier.pop(0)
-        explored.append(node)   
-        cleanListWithCost.append(node + " 1")
+        explored.append(node)  
+        previousNodeDict[node] = list()
+ 
+        cleanListWithCost.append(node + " " + str(cost))
+        cost = 1
         
         # find neighbors
         neighbors = findNeighbors(node, movements, graph)
+
         # this is return just a neighbor....
         # Add neighbors to frontier
         for x in neighbors: 
+            #check previous nodes 
             if x not in frontier and x not in explored:
+                previousNodeDict[node].append(x)
+                 
                 if x == endNode: #clean up output files
                     cleanListWithCost.append(x + " 1")
                     return cleanListWithCost
                 frontier.append(x)
-
+    print("woof")
     return "FAILED"
 
 
