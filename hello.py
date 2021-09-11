@@ -1,5 +1,7 @@
 import numpy as np
 import math
+from queue import PriorityQueue
+import heapq
 
 def checkBounds (node, graphDimensions):
     value = node
@@ -30,6 +32,26 @@ def findNeighbors(node, movements, graph):
 
         canVisit = calcDistances(movements[x],location)
         new_tuple = (canVisit)
+        neighbors.append(new_tuple) 
+
+    return neighbors
+    #return neighbors
+
+def findNeighborsUCS(node, movements, graph):
+
+    neighbors = list()
+    location = node
+ 
+    actions = graph[location].split()
+
+    for x in actions:
+
+        canVisit = calcDistances(movements[x],location)
+        if int(x) <= 6: 
+            cost = 10
+        else:
+             cost = 14
+        new_tuple = (cost,canVisit)
         neighbors.append(new_tuple) 
 
     return neighbors
@@ -236,25 +258,52 @@ def initiateGraph(filename):
         graphDictionary[nodeLocation] = nodeMoves
     
     return graphDictionary,inputDict
+def updateUcsDictionary(frontierTracker, neighbors):
+    for x in neighbors:
+        if x[1] in frontierTracker.keys():
+            if int(x[0]) < int(frontierTracker[x[1]]):
+                entry = {x[1]: x[0]}
+                frontierTracker.update(entry)
+        else:
+            frontierTracker[x[1]] = x[0]
+
+
+def UCS(graph, startingNode, endNode, movements, graphDimensions):
+    frontierTracker = dict()
+    frontier_ucs = PriorityQueue()
+
+    #priorityQueue.put((2,"Harry"))
+    frontier_ucs.put(startingNode)
+
+    frontierTracker[startingNode] =0
+
+    explored = list()
+
+    while frontier_ucs.qsize()>0:
+        node = frontier_ucs.get()
+        if node == endNode: 
+            return "SOLUTION FOUND"
+        explored.append(node)
+
+        neighbors = findNeighborsUCS(node, movements, graph)
+        updateUcsDictionary(frontierTracker,neighbors)
+  
+        for x in neighbors:
+            if x[1] not in frontier_ucs.queue and x[1] not in explored:
+                frontier_ucs.put(x[1])
+            elif x[1] in frontier_ucs.queue:
+                #check cost
+                print("meow")
+                if x[1] in frontierTracker.keys():
+                        print("woof")
+
+                #replace if necessary
 
 
 
 
-#bfs(graphDictionary, inputDict['start'],inputDict['end'])
 
 
-'''
-print("hello from python on ubuntu on windows!")
-
-#Cite https://www.codegrepper.com/code-examples/python/numpy+find+distance+between+two+points+in+3d
-a = np.array([1.0, 3.5, -6.3])
-b = np.array([4.5, 1.6,  1.2])
-
-dist = np.linalg.norm(a-b)
-dist = math.floor(dist)
-
-print(dist) 
-'''
 
 if __name__ == "__main__":
 
@@ -283,6 +332,9 @@ if __name__ == "__main__":
     bfsData = initiateGraph("bfs_input.txt")
     bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
     outputFileContent = constructFile (bfsPath)
+
+    ucsData = initiateGraph("usc_input.txt")
+    bfsPath = UCS(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
     blue = initiateGraph("usc_input.txt")
 
