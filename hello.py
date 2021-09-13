@@ -40,7 +40,7 @@ def findNeighbors(node, movements, graph):
 def findNeighborsUCS(node, movements, graph):
 
     neighbors = list()
-    location = node
+    location = node[1]
  
     actions = graph[location].split()
 
@@ -258,53 +258,126 @@ def initiateGraph(filename):
         graphDictionary[nodeLocation] = nodeMoves
     
     return graphDictionary,inputDict
-def updateUcsDictionary(frontierTracker, neighbors):
+
+def updateCostPt2(neighbors, frontierTracker, node):
+    for x in neighbors:
+        prevCost = int(frontierTracker[node])
+        newCost = int(x[0]) + prevCost 
+        entry = {x[1]:newCost}
+        frontierTracker.update(entry)
+
+
+
+def updateUcsDictionary(frontierTracker, neighbors, cost):
     for x in neighbors:
         if x[1] in frontierTracker.keys():
-            if int(x[0]) < int(frontierTracker[x[1]]):
+            if int(x[0]) + cost < int(frontierTracker[x[1]]):
                 entry = {x[1]: x[0]}
                 frontierTracker.update(entry)
         else:
-            frontierTracker[x[1]] = x[0]
+            #brand new
+            tempCost = cost + int(x[0])
+            #frontierTracker[x[1]] = int(x[0]
+            frontierTracker[x[1]] = tempCost
+    
+def updateFrontierCost(node, frontierTracker, cost):
+    potentialCost = int(node[0])+ cost
+    if potentialCost < int(frontierTracker[node[1]]):
+        newCost = {node[1]: potentialCost}
+        frontierTracker.update(newCost)
 
+def updateCost (node, frontierTracker, cost, shallowCost):
 
+    newCost = int(shallowCost) + cost #Add existing cost to new cost
+    entry = {node:newCost}
+    frontierTracker.update(entry)
+        
 def UCS(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker = dict()
     frontier_ucs = PriorityQueue()
 
-    #priorityQueue.put((2,"Harry"))
     frontier_ucs.put(startingNode)
-
     frontierTracker[startingNode] =0
-
     explored = list()
+    shortestRoute =list()
+    cost = 0 
+    tempDict = dict()
 
     while frontier_ucs.qsize()>0:
         node = frontier_ucs.get()
+
         if node == endNode: 
             return "SOLUTION FOUND"
+
         explored.append(node)
+        #cost = updateCost(node, frontierTracker, cost, tempDict)
+        tempDict.clear()
+
+        shortestRoute.append(node)
 
         neighbors = findNeighborsUCS(node, movements, graph)
-        updateUcsDictionary(frontierTracker,neighbors)
-  
+        #newCost = updateUcsDictionary(frontierTracker,neighbors, cost)
+
+        updateCostPt2(neighbors, frontierTracker, node)
+
         for x in neighbors:
+            potentialCost = int(x[0])+ cost
+
             if x[1] not in frontier_ucs.queue and x[1] not in explored:
+                if x[1] == endNode:
+                    shortestRoute.append(x[1])
+                    return "IN HERE SOLUTION"
                 frontier_ucs.put(x[1])
-            elif x[1] in frontier_ucs.queue:
-                #check cost
-                print("meow")
-                if x[1] in frontierTracker.keys():
-                        print("woof")
+                tempDict[x[1]] = x[0]
+                #updateCost(node, frontierTracker, cost, x[0])
+                
+                
+            elif  x[1] in frontier_ucs.queue:
+                if potentialCost < int(frontierTracker[x[1]]):
+                    newCost = {x[1]: potentialCost}
+                    frontierTracker.update(newCost)
+            
 
-                #replace if necessary
+def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
+    frontierTracker = dict()
+    frontier_ucs = PriorityQueue()
 
+    frontier_ucs.put((0, startingNode))
 
+    frontierTracker[startingNode] = 0
 
+    explored = list()
+    cost = 0 
 
+    while frontier_ucs.qsize()>0:
+        node = frontier_ucs.get()
 
+        if node[1] == endNode: 
+            return "SOLUTION FOUND"
 
+        explored.append(node)
+        #cost = updateCost(node, frontierTracker, cost, tempDict)
 
+        neighbors = findNeighborsUCS(node, movements, graph)
+        #newCost = updateUcsDictionary(frontierTracker,neighbors, cost)
+
+        #updateCostPt2(neighbors, frontierTracker, node)
+
+        for x in neighbors:
+            neighborCost = int(x[0])+ int(frontierTracker[node[1]])
+            tuple = (neighborCost, x[1])
+            if x[1] not in frontier_ucs.queue and x[1] not in explored:
+               
+                frontier_ucs.put(tuple)
+                #updateCost(node, frontierTracker, cost, x[0])
+                
+            elif  x[1] in frontier_ucs.queue:
+                if neighborCost < int(frontierTracker[x[1]]):
+                    newCost = {x[1]: neighborCost}
+                    frontierTracker.update(newCost)
+
+                    
+      
 if __name__ == "__main__":
 
     movements= {
@@ -334,7 +407,7 @@ if __name__ == "__main__":
     outputFileContent = constructFile (bfsPath)
 
     ucsData = initiateGraph("usc_input.txt")
-    bfsPath = UCS(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
+    bfsPath = UCSv2(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
     blue = initiateGraph("usc_input.txt")
 
