@@ -382,8 +382,8 @@ def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
                     newCost = {x[1]: neighborCost}
                     frontierTracker.update(newCost)
 def findIndexofHeapQ(heapq,value):
-    for x in len(heapq):
-        if heapq[0][x] == value:
+    for x in range(0,len(heapq)):
+        if heapq[x][1] == value:
             return x
     return 0 
 
@@ -417,7 +417,8 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
                 frontierTracker[x[1]] = neighborCost
                 
             elif  any (x[1] == b for a, b in frontier_ucs_heapq):
-                if neighborCost < int(frontierTracker[x[1]]):
+                if True:
+                #if neighborCost < int(frontierTracker[x[1]]):
                     newCost = {x[1]: neighborCost}
                     frontierTracker.update(newCost)
                     index = findIndexofHeapQ(frontier_ucs_heapq,x[1])
@@ -426,6 +427,7 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
                     else:
                         frontier_ucs_heapq[index] = frontier_ucs_heapq[-1]
                         frontier_ucs_heapq.pop()
+                        heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
                         heapq.heapify(frontier_ucs_heapq)
                     
           
@@ -453,12 +455,12 @@ if __name__ == "__main__":
 
     }
 
-    bfsData = initiateGraph("bfs_input.txt")
+    bfsData = initiateGraph("/home/dianaoh/aihw1/bfs_input.txt")
     bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
     outputFileContent = constructFile (bfsPath)
 
-    ucsData = initiateGraph("usc_input.txt")
+    ucsData = initiateGraph("/home/dianaoh/aihw1/usc_input.txt")
     bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
-    blue = initiateGraph("usc_input.txt")
+    blue = initiateGraph("/home/dianaoh/aihw1/ucs_input.txt")
 
