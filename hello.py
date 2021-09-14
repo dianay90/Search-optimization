@@ -337,6 +337,12 @@ def UCS(graph, startingNode, endNode, movements, graphDimensions):
                     newCost = {x[1]: potentialCost}
                     frontierTracker.update(newCost)
             
+def checkInFrontier(node, frontierQueue):
+    value= any((node) in item for item in frontierQueue)
+    return value
+def checkTupleInExplored(node, explored):
+    value =  [ y for x, y in explored if y  ==  node ]
+    return value
 
 def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker = dict()
@@ -347,7 +353,6 @@ def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker[startingNode] = 0
 
     explored = list()
-    cost = 0 
 
     while frontier_ucs.qsize()>0:
         node = frontier_ucs.get()
@@ -356,28 +361,74 @@ def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
             return "SOLUTION FOUND"
 
         explored.append(node)
-        #cost = updateCost(node, frontierTracker, cost, tempDict)
 
         neighbors = findNeighborsUCS(node, movements, graph)
-        #newCost = updateUcsDictionary(frontierTracker,neighbors, cost)
-
-        #updateCostPt2(neighbors, frontierTracker, node)
-
+    
         for x in neighbors:
+            xyz_coordinate = x[1]
             neighborCost = int(x[0])+ int(frontierTracker[node[1]])
             tuple = (neighborCost, x[1])
-            if x[1] not in frontier_ucs.queue and x[1] not in explored:
-               
-                frontier_ucs.put(tuple)
+            #if checkInFrontier(x[1], frontier_ucs.queue) == False and checkTupleInExplored(x[1],explored) ==False :
+            if any((x[1]) in item for item in frontier_ucs.queue) == False:
+                if [ y for z, y in explored if y  == xyz_coordinate] == False:
+
+            #[ (x,y) for x, y in explored if x  == 0 ]
+            #[ y for x, y in explored if y  == '7 0 1' ]
+                    frontier_ucs.put(tuple)
                 #updateCost(node, frontierTracker, cost, x[0])
                 
-            elif  x[1] in frontier_ucs.queue:
+            elif  checkInFrontier(x[1], frontier_ucs.queue):
                 if neighborCost < int(frontierTracker[x[1]]):
                     newCost = {x[1]: neighborCost}
                     frontierTracker.update(newCost)
+def findIndexofHeapQ(heapq,value):
+    for x in len(heapq):
+        if heapq[0][x] == value:
+            return x
+    return 0 
 
+def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
+    frontierTracker = dict()
+
+    frontier_ucs_heapq = []
+    heapq.heappush(frontier_ucs_heapq, (0, startingNode))
+
+    frontierTracker[startingNode] = 0
+
+    explored = list()
+
+    while len(frontier_ucs_heapq)>0:
+        node = heapq.heappop(frontier_ucs_heapq)
+
+        if node[1] == endNode: 
+            return "SOLUTION FOUND"
+
+        explored.append(node[1])
+
+        neighbors = findNeighborsUCS(node, movements, graph)
+    
+        for x in neighbors:
+            # previous parent node cost + neighbor cost
+            neighborCost = int(x[0])+ int(frontierTracker[node[1]])
+
+            if not any (x[1] == b for a, b in frontier_ucs_heapq) and x[1] not in explored:
+          
+                heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
+                frontierTracker[x[1]] = neighborCost
+                
+            elif  any (x[1] == b for a, b in frontier_ucs_heapq):
+                if neighborCost < int(frontierTracker[x[1]]):
+                    newCost = {x[1]: neighborCost}
+                    frontierTracker.update(newCost)
+                    index = findIndexofHeapQ(frontier_ucs_heapq,x[1])
+                    if index == 0: 
+                        break
+                    else:
+                        frontier_ucs_heapq[index] = frontier_ucs_heapq[-1]
+                        frontier_ucs_heapq.pop()
+                        heapq.heapify(frontier_ucs_heapq)
                     
-      
+          
 if __name__ == "__main__":
 
     movements= {
@@ -407,7 +458,7 @@ if __name__ == "__main__":
     outputFileContent = constructFile (bfsPath)
 
     ucsData = initiateGraph("usc_input.txt")
-    bfsPath = UCSv2(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
+    bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
     blue = initiateGraph("usc_input.txt")
 
