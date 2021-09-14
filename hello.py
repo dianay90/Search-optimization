@@ -389,11 +389,15 @@ def findIndexofHeapQ(heapq,value):
 
 def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker = dict()
+    localCost= dict()
+    parentNode= dict()
 
     frontier_ucs_heapq = []
     heapq.heappush(frontier_ucs_heapq, (0, startingNode))
 
     frontierTracker[startingNode] = 0
+    localCost[startingNode] =0
+    parentNode[startingNode] =0
 
     explored = list()
 
@@ -415,12 +419,17 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
           
                 heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
                 frontierTracker[x[1]] = neighborCost
+                localCost[x[1]] = int(x[0])
+                parentNode[x[1]] = node[1]
                 
             elif  any (x[1] == b for a, b in frontier_ucs_heapq):
-                if True:
-                #if neighborCost < int(frontierTracker[x[1]]):
+                #if True:
+                if neighborCost < int(frontierTracker[x[1]]):
                     newCost = {x[1]: neighborCost}
                     frontierTracker.update(newCost)
+                    localCost[x[1]] = int(x[0])
+                    parentNode[x[1]] = node[1]
+
                     index = findIndexofHeapQ(frontier_ucs_heapq,x[1])
                     if index == 0: 
                         break
