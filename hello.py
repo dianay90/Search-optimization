@@ -423,8 +423,7 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
                 parentNode[x[1]] = node[1]
                 
             elif  any (x[1] == b for a, b in frontier_ucs_heapq):
-                #if True:
-                if neighborCost < int(frontierTracker[x[1]]):
+                if neighborCost < int(frontierTracker[x[1]]):   
                     newCost = {x[1]: neighborCost}
                     frontierTracker.update(newCost)
                     localCost[x[1]] = int(x[0])
@@ -439,7 +438,89 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
                         heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
                         heapq.heapify(frontier_ucs_heapq)
                     
-          
+
+
+def findEuclideanDistance(currentNode, endNode):
+    currentNodeValue = currentNode
+    currentNodeValueList = currentNodeValue.split()
+    cn_x_coordinate = int(currentNodeValueList[0])
+    cn_y_coordinate = int(currentNodeValueList[1])
+    cn_z_coordinate = int(currentNodeValueList[2])
+
+    endNodeValue =endNode
+    endNodeValueList = endNodeValue.split()
+    en_x_coordinate = int(endNodeValueList[0])
+    en_y_coordinate = int(endNodeValueList[1])
+    en_z_coordinate = int(endNodeValueList[2])
+
+    #Calculate distance 
+    x_difference = en_x_coordinate - cn_x_coordinate
+    y_difference = en_y_coordinate - cn_y_coordinate
+    z_difference = en_z_coordinate - cn_z_coordinate
+
+    x_difference = x_difference**2
+    y_difference = y_difference**2
+    z_difference = z_difference**2
+
+    sum = x_difference + y_difference + z_difference
+    distance = math.sqrt(sum)
+
+    return distance
+
+def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
+    frontierTracker = dict()
+    localCost= dict()
+    parentNode= dict()
+
+    frontier_ucs_heapq = []
+    heapq.heappush(frontier_ucs_heapq, (0, startingNode))
+
+    frontierTracker[startingNode] = 0
+    localCost[startingNode] =0
+    parentNode[startingNode] =0
+
+    explored = list()
+
+    while len(frontier_ucs_heapq)>0:
+        node = heapq.heappop(frontier_ucs_heapq)
+
+        if node[1] == endNode: 
+            return "SOLUTION FOUND"
+
+        explored.append(node[1])
+
+        neighbors = findNeighborsUCS(node, movements, graph)
+    
+        for x in neighbors:
+            # previous parent node cost + neighbor cost
+           # neighborCost = int(x[0])+ int(frontierTracker[node[1]])
+            euclideanDistance = findEuclideanDistance(x[1], endNode)
+            neighborCost = int(x[0])+ euclideanDistance
+
+            if not any (x[1] == b for a, b in frontier_ucs_heapq) and x[1] not in explored:
+
+                heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
+                frontierTracker[x[1]] = neighborCost
+                localCost[x[1]] = int(x[0])
+                parentNode[x[1]] = node[1]
+                
+            elif  any (x[1] == b for a, b in frontier_ucs_heapq):
+                if neighborCost < int(frontierTracker[x[1]]):   
+                    newCost = {x[1]: neighborCost}
+                    frontierTracker.update(newCost)
+                    localCost[x[1]] = int(x[0])
+                    parentNode[x[1]] = node[1]
+
+                    index = findIndexofHeapQ(frontier_ucs_heapq,x[1])
+                    if index == 0: 
+                        break
+                    else:
+                        frontier_ucs_heapq[index] = frontier_ucs_heapq[-1]
+                        frontier_ucs_heapq.pop()
+                        heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
+                        heapq.heapify(frontier_ucs_heapq)
+                    
+      
 if __name__ == "__main__":
 
     movements= {
@@ -463,6 +544,7 @@ if __name__ == "__main__":
     '18': 'Y-Z-',
 
     }
+    '''
 
     bfsData = initiateGraph("/home/dianaoh/aihw1/bfs_input.txt")
     bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
@@ -472,4 +554,6 @@ if __name__ == "__main__":
     bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
     blue = initiateGraph("/home/dianaoh/aihw1/ucs_input.txt")
-
+    '''
+    astarData=  initiateGraph("/home/dianaoh/aihw1/astar_input.txt")
+    astarPath =  Astarsearch(astarData[0],astarData[1]["start"],astarData[1]["end"], movements, astarData[1]["graphDimensions"])
