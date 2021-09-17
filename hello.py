@@ -2,6 +2,7 @@ import numpy as np
 import math
 from queue import PriorityQueue
 import heapq
+import os
 
 def checkBounds (node, graphDimensions):
     value = node
@@ -176,13 +177,39 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
 
     return shortestPath, cost, length
 
+def calculateShortestPathUCS(startingNode,endNode,previousNodeDict, localCost):
+    shortestPath = list()
+    costOfNode = str(localCost[endNode])
+    shortestPath.append(endNode + " " + costOfNode)
+    starNode = endNode
+
+    while starNode != startingNode:
+        costOfNode = str(localCost[previousNodeDict[starNode]])
+        shortestPath.append(previousNodeDict[starNode] + " " +  costOfNode)
+        starNode = previousNodeDict[starNode]
+
+    shortestPath.reverse()
+    length = len(shortestPath)
+    length = str(length)
+    return length, shortestPath
+
 def constructFile(bfsData):
 
-    with open('bfs_output.txt', mode='wt', encoding='utf-8') as output_file:
+    with open('output.txt', mode='wt', encoding='utf-8') as output_file:
         if bfsData != 'FAILED':
             output_file.write(str(bfsData[1]) + "\n")
             output_file.write(str(bfsData[2]) + "\n")
             output_file.write('\n'.join(bfsData[0]))
+        else: 
+            output_file.write("FAIL")
+def constructFileUCS(data):
+
+    with open('output.txt', mode='wt', encoding='utf-8') as output_file:
+        if data != 'FAILED':
+            output_file.write(str(data[0]) + "\n")
+            output_file.write(str(data[1][0]) + "\n")
+            output_file.write('\n'.join(data[1][1]))
+
         else: 
             output_file.write("FAIL")
 
@@ -386,6 +413,11 @@ def findIndexofHeapQ(heapq,value):
         if heapq[x][1] == value:
             return x
     return 0 
+def calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost):
+    cumulativeCost = frontierTracker[endNode]
+    shortestPath = calculateShortestPathUCS(startingNode,endNode,parentNode, localCost)
+    data = cumulativeCost, shortestPath
+    constructFileUCS(data)
 
 def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker = dict()
@@ -397,7 +429,7 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
 
     frontierTracker[startingNode] = 0
     localCost[startingNode] =0
-    parentNode[startingNode] =0
+    parentNode[startingNode] ='0'
 
     explored = list()
 
@@ -467,6 +499,7 @@ def findEuclideanDistance(currentNode, endNode):
 
     return distance
 
+
 def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
     frontierTracker = dict()
     localCost= dict()
@@ -477,7 +510,7 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
 
     frontierTracker[startingNode] = 0
     localCost[startingNode] =0
-    parentNode[startingNode] =0
+    parentNode[startingNode] ='0'
 
     explored = list()
 
@@ -485,8 +518,8 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
         node = heapq.heappop(frontier_ucs_heapq)
 
         if node[1] == endNode: 
-            return "SOLUTION FOUND"
-
+            calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost)
+            return
         explored.append(node[1])
 
         neighbors = findNeighborsUCS(node, movements, graph)
@@ -519,9 +552,11 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
                         frontier_ucs_heapq.pop()
                         heapq.heappush(frontier_ucs_heapq, (f_distance, x[1]))
                         heapq.heapify(frontier_ucs_heapq)
-                    
+    constructFile("FAILED")          
       
 if __name__ == "__main__":
+    directory = os.getcwd()
+    pathName = os.path.join(directory,"input.txt")
 
     movements= {
     '1':'X+', 
@@ -545,16 +580,31 @@ if __name__ == "__main__":
 
     }
     '''
+    data = initiateGraph(pathName)
+
+    if data[1]["graphType"] == "BFS":
+        dataExtracted=   bfs(data[0],data[1]["start"],data[1]["end"], movements, data[1]["graphDimensions"])
+        outputFileContent = constructFile (dataExtracted)
+
+
+    elif data[1]["graphType"] == "UCS":
+        dataExtracted =   UCSv4(data[0],data[1]["start"],data[1]["end"], movements, data[1]["graphDimensions"])
+    
+    elif data[1]["graphType"] == "A*":
+        dataExtracted =  Astarsearch(data[0],data[1]["start"],data[1]["end"], movements, data[1]["graphDimensions"])
+
+
+    '''
 
     bfsData = initiateGraph("/home/dianaoh/aihw1/bfs_input.txt")
     bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
     outputFileContent = constructFile (bfsPath)
 
-    '''
-   # ucsData = initiateGraph("/home/dianaoh/aihw1/usc_input.txt")
-   # bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
+    
+    ucsData = initiateGraph("/home/dianaoh/aihw1/usc_input.txt")
+    bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
-   # blue = initiateGraph("/home/dianaoh/aihw1/ucs_input.txt")
-   
+
     astarData=  initiateGraph("/home/dianaoh/aihw1/astar_input.txt")
     astarPath =  Astarsearch(astarData[0],astarData[1]["start"],astarData[1]["end"], movements, astarData[1]["graphDimensions"])
+    print('test')
