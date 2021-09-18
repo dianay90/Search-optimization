@@ -437,7 +437,8 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
         node = heapq.heappop(frontier_ucs_heapq)
 
         if node[1] == endNode: 
-            return "SOLUTION FOUND"
+            calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost)
+            return
 
         explored.append(node[1])
 
@@ -470,7 +471,7 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
                         heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
                         heapq.heapify(frontier_ucs_heapq)
                     
-
+    constructFile("FAILED")  
 
 def findEuclideanDistance(currentNode, endNode):
     currentNodeValue = currentNode
@@ -605,6 +606,6 @@ if __name__ == "__main__":
     bfsPath = UCSv4(ucsData[0],ucsData[1]["start"],ucsData[1]["end"], movements, ucsData[1]["graphDimensions"])
 
 
-    astarData=  initiateGraph("/home/dianaoh/aihw1/astar_input.txt")
-    astarPath =  Astarsearch(astarData[0],astarData[1]["start"],astarData[1]["end"], movements, astarData[1]["graphDimensions"])
+ #   astarData=  initiateGraph("/home/dianaoh/aihw1/astar_input.txt")
+ #   astarPath =  Astarsearch(astarData[0],astarData[1]["start"],astarData[1]["end"], movements, astarData[1]["graphDimensions"])
     print('test')
