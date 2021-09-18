@@ -431,7 +431,8 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
     localCost[startingNode] =0
     parentNode[startingNode] ='0'
 
-    explored = list()
+    #explored = list()
+    explored = dict()
 
     while len(frontier_ucs_heapq)>0:
         node = heapq.heappop(frontier_ucs_heapq)
@@ -443,7 +444,8 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
             calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost)
             return
 
-        explored.append(node[1])
+        #explored.append(node[1])
+        explored[node[1]]= ''
 
         neighbors = findNeighborsUCS(node, movements, graph)
     
@@ -451,7 +453,8 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
             # previous parent node cost + neighbor cost
             neighborCost = int(x[0])+ int(frontierTracker[node[1]])
 
-            if not any (x[1] == b for a, b in frontier_ucs_heapq) and x[1] not in explored:
+            #if not any (x[1] == b for a, b in frontier_ucs_heapq) and x[1] not in explored:
+            if not any (x[1] == b for a, b in frontier_ucs_heapq) and  x[1] not in explored:
           
                 heapq.heappush(frontier_ucs_heapq, (neighborCost, x[1]))
                 frontierTracker[x[1]] = neighborCost
@@ -516,7 +519,7 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
     localCost[startingNode] =0
     parentNode[startingNode] ='0'
 
-    explored = list()
+    explored = dict()
 
     while len(frontier_ucs_heapq)>0:
         node = heapq.heappop(frontier_ucs_heapq)
@@ -527,7 +530,8 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
         if node[1] == endNode: 
             calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost)
             return
-        explored.append(node[1])
+        #explored.append(node[1])
+        explored[node[1]]= ''
 
         neighbors = findNeighborsUCS(node, movements, graph)
     
@@ -602,7 +606,7 @@ if __name__ == "__main__":
 
 
     
-
+    '''
 
     bfsData = initiateGraph("/home/dianaoh/aihw1/bfs_input.txt")
     bfsPath = bfs(bfsData[0],bfsData[1]["start"],bfsData[1]["end"], movements, bfsData[1]["graphDimensions"])
@@ -616,3 +620,4 @@ if __name__ == "__main__":
     astarData=  initiateGraph("/home/dianaoh/aihw1/astar_input.txt")
     astarPath =  Astarsearch(astarData[0],astarData[1]["start"],astarData[1]["end"], movements, astarData[1]["graphDimensions"])
     print('test')
+    '''
