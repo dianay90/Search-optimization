@@ -3,7 +3,7 @@ import math
 from queue import PriorityQueue
 import heapq
 import os
-
+from collections import deque
 def checkBounds (node, graphDimensions):
     value = node
     value_list = value.split()
@@ -26,12 +26,12 @@ def checkBounds (node, graphDimensions):
 def findNeighbors(node, movements, graph):
 
     neighbors = list()
-    location = node
-    actions = graph[location].split()
+    actions = graph[node]
+    actions= actions.split()
 
     for x in actions:
 
-        canVisit = calcDistances(movements[x],location)
+        canVisit = calcDistances(movements[x],node)
         new_tuple = (canVisit)
         neighbors.append(new_tuple) 
 
@@ -146,19 +146,8 @@ def calcDistances (direction,startingPoint):
 
     return finalCoordinate
 
-
-
-
-
-
-def returnPathOptions(node):
-    startingPoint = node[0]
-    newDistanceList =list()
-    i = 1
-    while i < len(node):
-        newDistanceList.append(i)
-
-def calculateShortestPath(startingNode,endNode,previousNodeDict):
+#USE A STACK
+def calculateShortestPathv2(startingNode,endNode,previousNodeDict):
     shortestPath = list()
     shortestPath.append(endNode + " 1")
     backwardsNode = endNode
@@ -176,7 +165,25 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
     length = len(shortestPath)
 
     return shortestPath, cost, length
+def calculateShortestPath(startingNode,endNode,previousNodeDict):
+    #shortestPath = list()
+    shortestPath = deque()
+    shortestPath.append(endNode + " 1")
+    backwardsNode = endNode
+    while backwardsNode != startingNode:
+        for i in previousNodeDict:
+            if backwardsNode in previousNodeDict[i]:
+                if i != startingNode:
+                    shortestPath.append(i + " 1")
+                else:
+                    shortestPath.append(i + " 0")
+                backwardsNode = i
 
+    #shortestPath.reverse()
+    cost = len(shortestPath)-1 
+    length = len(shortestPath)
+
+    return shortestPath, cost, length
 def calculateShortestPathUCS(startingNode,endNode,previousNodeDict, localCost):
     shortestPath = list()
     costOfNode = str(localCost[endNode])
@@ -199,7 +206,11 @@ def constructFile(bfsData):
         if bfsData != 'FAILED':
             output_file.write(str(bfsData[1]) + "\n")
             output_file.write(str(bfsData[2]) + "\n")
-            output_file.write('\n'.join(bfsData[0]))
+            while len(bfsData[0])>0:
+                if len(bfsData[0])>1:
+                    output_file.write(bfsData[0].pop() +"\n")
+                else: 
+                    output_file.write(bfsData[0].pop())
         else: 
             output_file.write("FAIL")
 def constructFileUCS(data):
@@ -223,21 +234,21 @@ def neighborCheck(neighbors, explored, previousNodeDict):
     
 
 def bfs(graph, startingNode, endNode, movements, graphDimensions):
-    frontier = list() #the queue
+    frontier = deque()
     previousNodeDict = dict()
 
-        
     # Add first stuff to lists
     frontier.append(startingNode)
-    explored = list() # all things visited
-    
+    explored = dict()
+
     while len(frontier)>0:
-        node = frontier.pop(0)
+        node = frontier.popleft()
         value = checkBounds(node, graphDimensions)
         if value == "fail":
             continue
 
-        explored.append(node)  
+        #explored.append(node) 
+        explored[node]= '' 
         previousNodeDict[node] = list()
          
         # find neighbors
@@ -251,10 +262,10 @@ def bfs(graph, startingNode, endNode, movements, graphDimensions):
                 previousNodeDict[node].append(x)
                  
                 if x == endNode: #clean up output files
+                    #print("WOOOF")
                     shortestRoute =calculateShortestPath(startingNode, endNode, previousNodeDict)
                     return shortestRoute
                 frontier.append(x)
-    print("woof")
     return "FAILED"
 
 
@@ -270,43 +281,20 @@ def initiateGraph(filename):
     inputDict['end'] = Lines[3].strip()
     inputDict['steps'] = Lines[4].strip()
 
-
-    graph = list()
+    graphDictionary = dict()
 
     for item in Lines[5:]:
-
-        graph.append(item.strip())
-
-
-    graphDictionary = dict()
-    for item in graph:
         nodeLocation= ' '.join(item.split()[:3])
         nodeMoves= ' '.join(item.split()[3:])
         graphDictionary[nodeLocation] = nodeMoves
-    
+
     return graphDictionary,inputDict
 
-def updateCostPt2(neighbors, frontierTracker, node):
-    for x in neighbors:
-        prevCost = int(frontierTracker[node])
-        newCost = int(x[0]) + prevCost 
-        entry = {x[1]:newCost}
-        frontierTracker.update(entry)
 
 
 
-def updateUcsDictionary(frontierTracker, neighbors, cost):
-    for x in neighbors:
-        if x[1] in frontierTracker.keys():
-            if int(x[0]) + cost < int(frontierTracker[x[1]]):
-                entry = {x[1]: x[0]}
-                frontierTracker.update(entry)
-        else:
-            #brand new
-            tempCost = cost + int(x[0])
-            #frontierTracker[x[1]] = int(x[0]
-            frontierTracker[x[1]] = tempCost
-    
+
+ 
 def updateFrontierCost(node, frontierTracker, cost):
     potentialCost = int(node[0])+ cost
     if potentialCost < int(frontierTracker[node[1]]):
@@ -319,51 +307,7 @@ def updateCost (node, frontierTracker, cost, shallowCost):
     entry = {node:newCost}
     frontierTracker.update(entry)
         
-def UCS(graph, startingNode, endNode, movements, graphDimensions):
-    frontierTracker = dict()
-    frontier_ucs = PriorityQueue()
 
-    frontier_ucs.put(startingNode)
-    frontierTracker[startingNode] =0
-    explored = list()
-    shortestRoute =list()
-    cost = 0 
-    tempDict = dict()
-
-    while frontier_ucs.qsize()>0:
-        node = frontier_ucs.get()
-
-        if node == endNode: 
-            return "SOLUTION FOUND"
-
-        explored.append(node)
-        #cost = updateCost(node, frontierTracker, cost, tempDict)
-        tempDict.clear()
-
-        shortestRoute.append(node)
-
-        neighbors = findNeighborsUCS(node, movements, graph)
-        #newCost = updateUcsDictionary(frontierTracker,neighbors, cost)
-
-        updateCostPt2(neighbors, frontierTracker, node)
-
-        for x in neighbors:
-            potentialCost = int(x[0])+ cost
-
-            if x[1] not in frontier_ucs.queue and x[1] not in explored:
-                if x[1] == endNode:
-                    shortestRoute.append(x[1])
-                    return "IN HERE SOLUTION"
-                frontier_ucs.put(x[1])
-                tempDict[x[1]] = x[0]
-                #updateCost(node, frontierTracker, cost, x[0])
-                
-                
-            elif  x[1] in frontier_ucs.queue:
-                if potentialCost < int(frontierTracker[x[1]]):
-                    newCost = {x[1]: potentialCost}
-                    frontierTracker.update(newCost)
-            
 def checkInFrontier(node, frontierQueue):
     value= any((node) in item for item in frontierQueue)
     return value
@@ -371,43 +315,7 @@ def checkTupleInExplored(node, explored):
     value =  [ y for x, y in explored if y  ==  node ]
     return value
 
-def UCSv2(graph, startingNode, endNode, movements, graphDimensions):
-    frontierTracker = dict()
-    frontier_ucs = PriorityQueue()
 
-    frontier_ucs.put((0, startingNode))
-
-    frontierTracker[startingNode] = 0
-
-    explored = list()
-
-    while frontier_ucs.qsize()>0:
-        node = frontier_ucs.get()
-
-        if node[1] == endNode: 
-            return "SOLUTION FOUND"
-
-        explored.append(node)
-
-        neighbors = findNeighborsUCS(node, movements, graph)
-    
-        for x in neighbors:
-            xyz_coordinate = x[1]
-            neighborCost = int(x[0])+ int(frontierTracker[node[1]])
-            tuple = (neighborCost, x[1])
-            #if checkInFrontier(x[1], frontier_ucs.queue) == False and checkTupleInExplored(x[1],explored) ==False :
-            if any((x[1]) in item for item in frontier_ucs.queue) == False:
-                if [ y for z, y in explored if y  == xyz_coordinate] == False:
-
-            #[ (x,y) for x, y in explored if x  == 0 ]
-            #[ y for x, y in explored if y  == '7 0 1' ]
-                    frontier_ucs.put(tuple)
-                #updateCost(node, frontierTracker, cost, x[0])
-                
-            elif  checkInFrontier(x[1], frontier_ucs.queue):
-                if neighborCost < int(frontierTracker[x[1]]):
-                    newCost = {x[1]: neighborCost}
-                    frontierTracker.update(newCost)
 def findIndexofHeapQ(heapq,value):
     for x in range(0,len(heapq)):
         if heapq[x][1] == value:
@@ -431,7 +339,6 @@ def UCSv4(graph, startingNode, endNode, movements, graphDimensions):
     localCost[startingNode] =0
     parentNode[startingNode] ='0'
 
-    #explored = list()
     explored = dict()
 
     while len(frontier_ucs_heapq)>0:
@@ -567,7 +474,7 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
       
 if __name__ == "__main__":
     directory = os.getcwd()
-    pathName = os.path.join(directory,"input.txt")
+    pathName = os.path.join(directory,"bfs_input.txt")
 
     movements= {
     '1':'X+', 
