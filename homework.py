@@ -165,11 +165,14 @@ def calculateShortestPathv2(startingNode,endNode,previousNodeDict):
     length = len(shortestPath)
 
     return shortestPath, cost, length
+
 def calculateShortestPath(startingNode,endNode,previousNodeDict):
     #shortestPath = list()
     shortestPath = deque()
     shortestPath.append(endNode + " 1")
-    backwardsNode = endNode
+    starNode = endNode
+    
+    '''
     while backwardsNode != startingNode:
         for i in previousNodeDict:
             if backwardsNode in previousNodeDict[i]:
@@ -178,6 +181,14 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
                 else:
                     shortestPath.append(i + " 0")
                 backwardsNode = i
+    '''
+    while starNode != startingNode:
+        if previousNodeDict[starNode] == startingNode:
+            shortestPath.append(previousNodeDict[starNode] + " 0")
+        else: 
+            shortestPath.append(previousNodeDict[starNode] + " 1")
+        starNode= previousNodeDict[starNode]
+    
 
     #shortestPath.reverse()
     cost = len(shortestPath)-1 
@@ -249,17 +260,17 @@ def bfs(graph, startingNode, endNode, movements, graphDimensions):
 
         #explored.append(node) 
         explored[node]= '' 
-        previousNodeDict[node] = list()
+        #previousNodeDict[node] = list()
          
         # find neighbors
         neighbors = findNeighbors(node, movements, graph)
 
-        # this is return just a neighbor....
         # Add neighbors to frontier
         for x in neighbors: 
             #check previous nodes 
             if x not in frontier and x not in explored:
-                previousNodeDict[node].append(x)
+                #previousNodeDict[x]= list()
+                previousNodeDict[x]=node
                  
                 if x == endNode: #clean up output files
                     #print("WOOOF")
