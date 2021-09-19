@@ -172,16 +172,6 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
     shortestPath.append(endNode + " 1")
     starNode = endNode
     
-    '''
-    while backwardsNode != startingNode:
-        for i in previousNodeDict:
-            if backwardsNode in previousNodeDict[i]:
-                if i != startingNode:
-                    shortestPath.append(i + " 1")
-                else:
-                    shortestPath.append(i + " 0")
-                backwardsNode = i
-    '''
     while starNode != startingNode:
         if previousNodeDict[starNode] == startingNode:
             shortestPath.append(previousNodeDict[starNode] + " 0")
@@ -196,7 +186,8 @@ def calculateShortestPath(startingNode,endNode,previousNodeDict):
 
     return shortestPath, cost, length
 def calculateShortestPathUCS(startingNode,endNode,previousNodeDict, localCost):
-    shortestPath = list()
+    #shortestPath = list()
+    shortestPath = deque()
     costOfNode = str(localCost[endNode])
     shortestPath.append(endNode + " " + costOfNode)
     starNode = endNode
@@ -206,7 +197,6 @@ def calculateShortestPathUCS(startingNode,endNode,previousNodeDict, localCost):
         shortestPath.append(previousNodeDict[starNode] + " " +  costOfNode)
         starNode = previousNodeDict[starNode]
 
-    shortestPath.reverse()
     length = len(shortestPath)
     length = str(length)
     return length, shortestPath
@@ -225,12 +215,17 @@ def constructFile(bfsData):
         else: 
             output_file.write("FAIL")
 def constructFileUCS(data):
-
+    stack = data[1][1]
     with open('output.txt', mode='wt', encoding='utf-8') as output_file:
         if data != 'FAILED':
             output_file.write(str(data[0]) + "\n")
             output_file.write(str(data[1][0]) + "\n")
-            output_file.write('\n'.join(data[1][1]))
+            #output_file.write('\n'.join(data[1][1]))
+            while len(stack)>0:
+                if len(stack)>1:
+                    output_file.write(stack.pop() +"\n")
+                else: 
+                    output_file.write(stack.pop())
 
         else: 
             output_file.write("FAIL")
@@ -332,6 +327,7 @@ def findIndexofHeapQ(heapq,value):
         if heapq[x][1] == value:
             return x
     return 0 
+
 def calculateOutput(startingNode,endNode,frontierTracker,parentNode, localCost):
     cumulativeCost = frontierTracker[endNode]
     shortestPath = calculateShortestPathUCS(startingNode,endNode,parentNode, localCost)
@@ -485,7 +481,7 @@ def Astarsearch(graph, startingNode, endNode, movements, graphDimensions):
       
 if __name__ == "__main__":
     directory = os.getcwd()
-    pathName = os.path.join(directory,"bfs_input.txt")
+    pathName = os.path.join(directory,"input.txt")
 
     movements= {
     '1':'X+', 
